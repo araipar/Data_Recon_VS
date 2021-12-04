@@ -1,5 +1,4 @@
-﻿0
-"Amt,Descr,Date,ID"
+﻿"Amt,Descr,Date,ID"
 "24,A,2021-06-30,zoUr"
 "11,B,2021-06-30,zoXq"
 "69,C,2021-07-01,zoap"
