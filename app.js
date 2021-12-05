@@ -2,10 +2,10 @@
 exports.__esModule = true;
 var export_to_csv_1 = require("export-to-csv");
 var fs = require("fs");
-var csvParse = require("csv-parse");
 var console = require("console");
 var csv = require('csvtojson'); // Make sure you have this line in order to call functions from this modules
-var dateRange = "1-31 Jul 2021"; // hardcode bcs we are processing July 2021 Only
+var dateStart = ""; // hardcode bcs we are processing July 2021 Only
+var dateEnd = ""; // hardcode bcs we are processing July 2021 Only
 var numberOfRecordsProcessed = 0;
 var numberOfDescrepancy = 0;
 var typeOfDescrepancies = "";
@@ -26,17 +26,6 @@ var options = {
     useKeysAsHeaders: false
 };
 var exportToCsv = new export_to_csv_1.ExportToCsv(options);
-var parserSummary = csvParse.parse({ delimiter: ';' }, function (err) {
-    var csvDataSource = exportToCsv.generateCsv(summary, true);
-    fs.writeFileSync(__dirname + '/csv_Files/Outputs/fileSummary.txt', csvDataSource);
-    console.log(output);
-});
-var parserOutput = csvParse.parse({ delimiter: ';' }, function (err) {
-    var csvDataProxy = exportToCsv.generateCsv(output, true);
-    fs.writeFileSync(__dirname + '/csv_Files/Outputs/fileOutput.txt', csvDataProxy);
-    console.log(output);
-    //console.log(data);
-});
 var csvProxyPath = __dirname + '/csv_Files/Inputs/proxy.csv'; // Resource.csv in your case
 var csvSourcePath = __dirname + '/csv_Files/Inputs/source.csv'; // Resource.csv in your case
 var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
@@ -44,6 +33,8 @@ var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
     csv().fromFile(csvSourcePath).then(function (jsonObjSource) {
         // console.log(jsonObjSource);
         // console.log(jsonObjProxy);
+        dateStart = jsonObjProxy[0]["Date"];
+        dateEnd = jsonObjProxy[0]["Date"];
         // analyze here :   
         for (var key in jsonObjProxy) {
             if (jsonObjProxy.hasOwnProperty(key)) {
@@ -51,13 +42,19 @@ var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
                 var recordId = jsonObjSource.filter(function (item) {
                     return item.ID == jsonObjProxy[key]["ID"];
                 });
+                if (Date.parse(dateStart) > Date.parse(jsonObjProxy[key]["Date"])) {
+                    dateStart = jsonObjProxy[key]["Date"];
+                }
+                if (Date.parse(dateEnd) < Date.parse(jsonObjProxy[key]["Date"])) {
+                    dateEnd = jsonObjProxy[key]["Date"];
+                }
                 numberOfRecordsProcessed += 1;
                 if (Object.keys(recordId).length == 0) { //ID not exist in source
                     recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Record does not exist in Source";
                     objOutput = [recordOutput];
                     output.push(objOutput);
                     numberOfDescrepancy += 1;
-                    typeOfDescrepancies += '&' + 'nonExist';
+                    typeOfDescrepancies += 'nonExist|';
                 }
                 else { // ID exist in source
                     recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Record exist in Source";
@@ -66,11 +63,16 @@ var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
                 }
             }
         }
-        recordSummary = dateRange + ',' + numberOfRecordsProcessed + ',' + numberOfDescrepancy + ',' + typeOfDescrepancies;
+        recordSummary = dateStart + ' to ' + dateEnd + ',' + numberOfRecordsProcessed + ',' + numberOfDescrepancy + ',' + typeOfDescrepancies;
         objSummary = [recordSummary];
         summary.push(objSummary);
-        fs.createReadStream(__dirname + '/csv_Files/Inputs/source.csv').pipe(parserOutput);
-        fs.createReadStream(__dirname + '/csv_Files/Inputs/source.csv').pipe(parserSummary);
+        var csvDataSource = exportToCsv.generateCsv(summary, true);
+        fs.writeFileSync(__dirname + '/csv_Files/Outputs/fileSummary.txt', csvDataSource);
+        console.log(output);
+        var csvDataProxy = exportToCsv.generateCsv(output, true);
+        fs.writeFileSync(__dirname + '/csv_Files/Outputs/fileOutput.txt', csvDataProxy);
+        console.log(output);
+        //console.log(data);
     });
 });
 /*fs.createReadStream(__dirname + '/csv_Files/Inputs/source.csv').pipe(parserSource);*/
