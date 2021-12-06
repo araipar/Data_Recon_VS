@@ -1,2 +1,2 @@
 ﻿"Date Range|Number Of Records Processed|Number Of Desrepancy|Type Of Desrepancy"
-"2021-06-30 to 2021-08-01|12|7|nonExistOrDuplicate;nonExistOrDuplicate;AmountMismatch;AmountMismatch;DateMismatch;DescriptionMismatch;nonExistOrDuplicate;"
+"2021-06-30 to 2021-08-01|11|6|DescriptionMismatch;nonExistOrDuplicate;AmountMismatch;AmountMismatch;DateMismatch;DescriptionMismatch;"

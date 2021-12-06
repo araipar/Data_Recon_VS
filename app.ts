@@ -71,7 +71,7 @@ var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
 
                     } else { // ID exist in source
                         var recordAmount = jsonObjSource.filter(function (item) {
-                            return item.Amount == jsonObjProxy[key]["Amt"];
+                            return item.Amount == jsonObjProxy[key]["Amt"] && item.ID == jsonObjProxy[key]["ID"];
 
                         });
 
@@ -85,7 +85,7 @@ var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
 
                         } else {
                             var recordDate = jsonObjSource.filter(function (item) {  // check Date
-                                return item.Date == jsonObjProxy[key]["Date"];
+                                return item.Date == jsonObjProxy[key]["Date"] && item.ID == jsonObjProxy[key]["ID"];
 
                             });
 
@@ -99,7 +99,7 @@ var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
 
                             } else {
                                 var recordDesc = jsonObjSource.filter(function (item) { //check Desc
-                                    return item.Description == jsonObjProxy[key]["Descr"];
+                                    return item.Description == jsonObjProxy[key]["Descr"] && item.ID == jsonObjProxy[key]["ID"];
 
                                 });
 

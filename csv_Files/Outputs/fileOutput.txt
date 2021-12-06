@@ -1,6 +1,6 @@
 ﻿"Amt,Descr,Date,ID,Remark"
-"24,A,2021-06-30,zoUr,Record does not exist or duplicated in Source"
-"11,B,2021-06-30,zoXq,OK"
+"24,A,2021-06-30,zoUr,OK"
+"11,B,2021-06-30,zoXq,Description Mismatch"
 "69,C,2021-07-01,zoap,OK"
 "30,D,2021-07-03,zodo,Record does not exist or duplicated in Source"
 "86,E,2021-07-04,zogn,OK"
@@ -10,4 +10,3 @@
 "56,I,2021-08-01,zosj,OK"
 "73,J,2021-07-11,zoja,Date Mismatch"
 "73,Z,2021-07-10,zoko,Description Mismatch"
-"24,A,2021-06-30,zoUr,Record does not exist or duplicated in Source"
