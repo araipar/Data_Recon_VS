@@ -12,7 +12,7 @@ var typeOfDescrepancies = "";
 var recordOutput = "";
 var recordSummary = "";
 var output = [['Amt,Descr,Date,ID,Remark']];
-var summary = [['Date Range,Number Of Records Processed,Number Of Desrepancy,Type Of Desrepancy']];
+var summary = [['Date Range|Number Of Records Processed|Number Of Desrepancy|Type Of Desrepancy']];
 var objOutput = [''];
 var objSummary = [''];
 var options = {
@@ -49,31 +49,66 @@ var objProxy = csv().fromFile(csvProxyPath) // parse file proxy to json
                     dateEnd = jsonObjProxy[key]["Date"];
                 }
                 numberOfRecordsProcessed += 1;
-                if (Object.keys(recordId).length == 0) { //ID not exist in source
-                    recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Record does not exist in Source";
+                if (Object.keys(recordId).length != 1) { //ID not exist in source or might be containing duplicate in source
+                    recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Record does not exist or duplicated in Source";
                     objOutput = [recordOutput];
                     output.push(objOutput);
                     numberOfDescrepancy += 1;
-                    typeOfDescrepancies += 'nonExist|';
+                    typeOfDescrepancies += 'nonExistOrDuplicate;';
                 }
                 else { // ID exist in source
-                    recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Record exist in Source";
-                    objOutput = [recordOutput];
-                    output.push(objOutput);
+                    var recordAmount = jsonObjSource.filter(function (item) {
+                        return item.Amount == jsonObjProxy[key]["Amt"];
+                    });
+                    if (Object.keys(recordAmount).length == 0) { //cekAmt
+                        recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Amount Mismatch";
+                        objOutput = [recordOutput];
+                        output.push(objOutput);
+                        numberOfDescrepancy += 1;
+                        typeOfDescrepancies += 'AmountMismatch;';
+                    }
+                    else {
+                        var recordDate = jsonObjSource.filter(function (item) {
+                            return item.Date == jsonObjProxy[key]["Date"];
+                        });
+                        if (Object.keys(recordDate).length == 0) { //cekDate
+                            recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Date Mismatch";
+                            objOutput = [recordOutput];
+                            output.push(objOutput);
+                            numberOfDescrepancy += 1;
+                            typeOfDescrepancies += 'DateMismatch;';
+                        }
+                        else {
+                            var recordDesc = jsonObjSource.filter(function (item) {
+                                return item.Description == jsonObjProxy[key]["Descr"];
+                            });
+                            if (Object.keys(recordDesc).length == 0) { //cekDesc
+                                recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Description Mismatch";
+                                objOutput = [recordOutput];
+                                output.push(objOutput);
+                                numberOfDescrepancy += 1;
+                                typeOfDescrepancies += 'DescriptionMismatch;';
+                            }
+                            else {
+                                recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "OK";
+                                objOutput = [recordOutput];
+                                output.push(objOutput);
+                            }
+                        }
+                    }
+                    //recordOutput = jsonObjProxy[key]["Amt"] + ',' + jsonObjProxy[key]["Descr"] + ',' + jsonObjProxy[key]["Date"] + ',' + jsonObjProxy[key]["ID"] + ',' + "Record exist in Source"
+                    //objOutput = [recordOutput];
+                    //output.push(objOutput);
                 }
             }
         }
-        recordSummary = dateStart + ' to ' + dateEnd + ',' + numberOfRecordsProcessed + ',' + numberOfDescrepancy + ',' + typeOfDescrepancies;
+        recordSummary = dateStart + ' to ' + dateEnd + '|' + numberOfRecordsProcessed + '|' + numberOfDescrepancy + '|' + typeOfDescrepancies;
         objSummary = [recordSummary];
         summary.push(objSummary);
         var csvDataSource = exportToCsv.generateCsv(summary, true);
         fs.writeFileSync(__dirname + '/csv_Files/Outputs/fileSummary.txt', csvDataSource);
-        console.log(output);
         var csvDataProxy = exportToCsv.generateCsv(output, true);
         fs.writeFileSync(__dirname + '/csv_Files/Outputs/fileOutput.txt', csvDataProxy);
-        console.log(output);
-        //console.log(data);
     });
 });
-/*fs.createReadStream(__dirname + '/csv_Files/Inputs/source.csv').pipe(parserSource);*/
 console.log('done');
